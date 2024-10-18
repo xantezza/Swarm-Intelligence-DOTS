@@ -8,3 +8,5 @@
 *.comp linguist-detectable=false
 *.shader linguist-detectable=false
 *.cginc linguist-detectable=false 
+*.m linguist-detectable=false
+*.wl linguist-detectable=false
