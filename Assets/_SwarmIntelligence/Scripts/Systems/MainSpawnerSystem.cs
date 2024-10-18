@@ -16,22 +16,26 @@ namespace _SwarmIntelligence.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!SystemAPI.TryGetSingletonEntity<MainSpawnerComponent>(out var spawnerEntity))
+            var entityManager = state.EntityManager;
+            var entities = entityManager.GetAllEntities();
+
+            foreach (var entity in entities)
             {
-                return;
+                if (entityManager.HasComponent<MainSpawnerComponent>(entity))
+                {
+                    var mainSpawner = entityManager.GetComponentData<MainSpawnerComponent>(entity);
+                    SpawnFood(ref state, ref mainSpawner);
+
+                    if (!_inited)
+                    {
+                        _inited = true;
+                        SpawnHome(ref state, mainSpawner);
+                        SpawnAnts(ref state, mainSpawner);
+                    }
+
+                    entityManager.SetComponentData(entity, mainSpawner);
+                }
             }
-
-            RefRW<MainSpawnerComponent> mainSpawner = SystemAPI.GetComponentRW<MainSpawnerComponent>(spawnerEntity);
-
-            var mainSpawnerRW = mainSpawner.ValueRW;
-            if (!_inited)
-            {
-                _inited = true;
-                SpawnHome(ref state, mainSpawnerRW);
-                SpawnAnts(ref state, mainSpawnerRW);
-            }
-
-            SpawnFood(ref state, mainSpawnerRW);
         }
 
         [BurstCompile]
@@ -44,23 +48,23 @@ namespace _SwarmIntelligence.Systems
             ecb.Playback(state.EntityManager);
         }
 
-        [BurstCompile]
         private void SpawnAnts(ref SystemState state, MainSpawnerComponent spawner)
         {
-            for (int i = 0; spawner.AntCount < i; i++)
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+            for (int i = 0; i < spawner.AntCount; i++)
             {
-                EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
                 Entity newEntity = ecb.Instantiate(spawner.Ant);
                 ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.AntSearchColor});
-                var moveDirection = math.normalize(Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime / SystemAPI.Time.DeltaTime)).NextFloat3()
-                                                   - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + 1 / SystemAPI.Time.DeltaTime)).NextFloat3());
+                var moveDirection = math.normalize(Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + i / SystemAPI.Time.DeltaTime)).NextFloat3()
+                                                   - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime - i/ SystemAPI.Time.DeltaTime)).NextFloat3());
                 ecb.AddComponent(newEntity, new AntComponent {TalkRange = spawner.AntTalkRange, MoveSpeed = spawner.AntMoveSpeed, MoveDirection = moveDirection});
-                ecb.Playback(state.EntityManager);
             }
+
+            ecb.Playback(state.EntityManager);
         }
 
         [BurstCompile]
-        private void SpawnFood(ref SystemState state, MainSpawnerComponent spawner)
+        private void SpawnFood(ref SystemState state, ref MainSpawnerComponent spawner)
         {
             if (spawner.NextFoodSpawnTime > SystemAPI.Time.ElapsedTime) return;
 
@@ -71,7 +75,7 @@ namespace _SwarmIntelligence.Systems
             ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.FoodColor});
             ecb.AddComponent(newEntity, new FoodSupplyComponent());
             var position = math.normalize(Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime / SystemAPI.Time.DeltaTime)).NextFloat3()
-                                          - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + 1 / SystemAPI.Time.DeltaTime)).NextFloat3()) * 3;
+                                          - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + 1 / SystemAPI.Time.DeltaTime)).NextFloat3()) * 5;
             ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 1});
             spawner.NextFoodSpawnTime = (float) SystemAPI.Time.ElapsedTime + spawner.FoodSpawnRate;
             ecb.Playback(state.EntityManager);

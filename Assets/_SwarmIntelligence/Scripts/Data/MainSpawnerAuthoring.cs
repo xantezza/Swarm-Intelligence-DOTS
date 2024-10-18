@@ -35,6 +35,7 @@ namespace _SwarmIntelligence.Data
                 FoodSpawnRate = authoring.foodSpawnRate,
                 NextFoodSpawnTime = 0f,
                 Ant = GetEntity(authoring.Ant, TransformUsageFlags.Dynamic),
+                AntTalkRange = authoring.AntTalkRange,
                 AntCount = authoring.AntCount,
                 AntMoveSpeed = authoring.AntMoveSpeed,
                 AntSearchColor = authoring.AntSearchColor.ToFloat4(),
