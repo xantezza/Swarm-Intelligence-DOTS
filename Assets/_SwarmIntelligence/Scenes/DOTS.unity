@@ -131,8 +131,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 922148634}
+  - component: {fileID: 922148635}
   m_Layer: 0
-  m_Name: A
+  m_Name: MainSpawnerAuthoring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,6 +154,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &922148635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922148633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c44e4f6b374e11855b79d8f154f47a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Home: {fileID: 7570401135849930891, guid: 3d6cc7c588890554fa7b096ac5908ac6, type: 3}
+  HomeColor: {r: 0, g: 0, b: 0, a: 0}
+  Food: {fileID: 7570401135849930891, guid: 3d6cc7c588890554fa7b096ac5908ac6, type: 3}
+  FoodColor: {r: 1, g: 0, b: 0, a: 0}
+  Ant: {fileID: 7570401135849930891, guid: 3d6cc7c588890554fa7b096ac5908ac6, type: 3}
+  AntSearchColor: {r: 0, g: 0, b: 1, a: 0}
+  AntBackColor: {r: 0, g: 1, b: 0.04256463, a: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
