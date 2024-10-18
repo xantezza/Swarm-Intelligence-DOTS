@@ -10,3 +10,5 @@
 *.cginc linguist-detectable=false 
 *.m linguist-detectable=false
 *.wl linguist-detectable=false
+*.wlt linguist-detectable=false
+
