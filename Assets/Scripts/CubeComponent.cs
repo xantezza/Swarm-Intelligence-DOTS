@@ -1,11 +1,10 @@
 ﻿using Unity.Entities;
+using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Mathematics;
 
-namespace DefaultNamespace
+public struct CubeComponent : IComponentData
 {
-    public class CubeComponent : IComponentData
-    {
-        public float3 moveDirection;
-        public float moveSpeed;
-    }
+    public float3 moveDirection;
+    public float moveSpeed;
 }

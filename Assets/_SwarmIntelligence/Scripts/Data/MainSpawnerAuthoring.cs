@@ -11,7 +11,11 @@ namespace _SwarmIntelligence.Data
         public Color HomeColor;
         public GameObject Food;
         public Color FoodColor;
+        public float foodSpawnRate;
         public GameObject Ant;
+        public int AntCount;
+        public float AntMoveSpeed;
+        public float AntTalkRange;
         public Color AntSearchColor;
         public Color AntBackColor;
     }
@@ -24,11 +28,15 @@ namespace _SwarmIntelligence.Data
         
             AddComponent(entity, new MainSpawnerComponent
             {
-                Home = GetEntity(authoring.Home, TransformUsageFlags.Renderable),
+                Home = GetEntity(authoring.Home, TransformUsageFlags.Dynamic),
                 HomeColor = authoring.HomeColor.ToFloat4(),
-                Food = GetEntity(authoring.Food, TransformUsageFlags.Renderable),
+                Food = GetEntity(authoring.Food, TransformUsageFlags.Dynamic),
                 FoodColor = authoring.FoodColor.ToFloat4(),
-                Ant = GetEntity(authoring.Ant, TransformUsageFlags.Renderable),
+                FoodSpawnRate = authoring.foodSpawnRate,
+                NextFoodSpawnTime = 0f,
+                Ant = GetEntity(authoring.Ant, TransformUsageFlags.Dynamic),
+                AntCount = authoring.AntCount,
+                AntMoveSpeed = authoring.AntMoveSpeed,
                 AntSearchColor = authoring.AntSearchColor.ToFloat4(),
                 AntBackColor = authoring.AntBackColor.ToFloat4(),
             });

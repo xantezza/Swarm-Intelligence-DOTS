@@ -1,4 +1,3 @@
-using DefaultNamespace;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Collections;
