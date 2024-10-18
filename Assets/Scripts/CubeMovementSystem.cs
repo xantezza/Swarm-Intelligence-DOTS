@@ -1,12 +1,13 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 namespace DefaultNamespace
 {
     [BurstCompile]
-    public partial struct CubeSystem : ISystem
+    public partial struct CubeMovementSystem : ISystem
     {
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -32,6 +33,7 @@ namespace DefaultNamespace
                     else
                     {
                         cube.moveSpeed = 0;
+                        entityManager.AddComponentData(entity, new HDRPMaterialPropertyBaseColor {Value = new float4(1, 0, 0, 1)});
                         entityManager.RemoveComponent<CubeComponent>(entity);
                     }
                 }
