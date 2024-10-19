@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -9,11 +10,13 @@ namespace _SwarmIntelligence.Extensions
 {
     public static class ColorExtensions
     {
+        [BurstCompile]
         public static float4 ToFloat4(this Color color)
         {
             return new float4(color.r, color.g, color.b, color.a);
         }
 
+        [BurstCompile]
         public static void Colorize(this Entity entity, EntityManager entityManager, float4 color)
         {
             entityManager.AddComponentData(entity, new HDRPMaterialPropertyBaseColor {Value = color});

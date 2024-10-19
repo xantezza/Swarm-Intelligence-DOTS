@@ -14,18 +14,7 @@ namespace _SwarmIntelligence.Systems
     [BurstCompile]
     public partial struct MainSpawnerSystem : ISystem
     {
-        private bool _inited;
-
-        [BurstCompile]
-        public void OnCreate(ref SystemState state)
-        {
-            var entityManager = state.EntityManager;
-            var entities = entityManager.GetAllEntities();
-
-            foreach (var entity in entities)
-            {
-            }
-        }
+        private bool _inited; 
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -70,14 +59,11 @@ namespace _SwarmIntelligence.Systems
             {
                 Entity newEntity = ecb.Instantiate(spawner.Ant);
                 ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.AntSearchColor});
-                var moveDirection = RandomExtensions.RandomDirection(SystemAPI.Time.ElapsedTime + i);
-                var position = RandomExtensions.RandomNormalizedDirection(SystemAPI.Time.ElapsedTime + i) * 4;
-                ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 0.2f});
+                var moveDirection = RandomExtensions.RandomNormalizedDirection(SystemAPI.Time.ElapsedTime + i);
                 ecb.AddComponent(newEntity, new AntComponent
                 {
-                    Position = position,
                     TalkRange = spawner.AntTalkRange,
-                    MoveSpeed = spawner.AntMoveSpeed,
+                    MoveSpeed = spawner.AntMoveSpeed * math.abs(moveDirection.x),
                     MoveDirection = moveDirection,
                     SearchingForFood = true,
                     FoodSearchColor = spawner.AntSearchColor,

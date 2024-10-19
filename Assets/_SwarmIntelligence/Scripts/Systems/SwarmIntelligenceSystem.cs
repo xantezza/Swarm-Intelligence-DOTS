@@ -11,7 +11,6 @@ namespace _SwarmIntelligence.Systems
     public partial struct SwarmIntelligenceSystem : ISystem
     {
         private NativeArray<FoodSupplyComponent> _foodSupplies;
-        private NativeArray<AntComponent> _ants;
         private NativeArray<HomeComponent> _homeComponents;
 
         [BurstCompile]
@@ -24,42 +23,54 @@ namespace _SwarmIntelligence.Systems
             {
                 _foodSupplies = state.GetEntityQuery(new ComponentType[] {typeof(FoodSupplyComponent)})
                     .ToComponentDataArray<FoodSupplyComponent>(Allocator.Persistent);
-                _ants = state.GetEntityQuery(new ComponentType[] {typeof(AntComponent)})
-                    .ToComponentDataArray<AntComponent>(Allocator.Persistent);
                 _homeComponents = state.GetEntityQuery(new ComponentType[] {typeof(HomeComponent)})
                     .ToComponentDataArray<HomeComponent>(Allocator.Persistent);
             }
 
-            for (var index = 0; index < entities.Length; index++)
+            foreach (var entity in entities)
             {
-                var entity = entities[index];
                 if (!entityManager.HasComponent<AntComponent>(entity)) continue;
 
-                ProcessFoodAndHome(entityManager, entity);
+                ProcessFoodAndHome(ref state, entity);
+                ProcessTalk(ref state, entities, entity, entityManager);
+            }
+        }
 
-                foreach (var otherAnt in _ants)
+        [BurstCompile]
+        private void ProcessTalk(ref SystemState state, NativeArray<Entity> entities, Entity entity, EntityManager entityManager)
+        {
+            foreach (var otherEntity in entities)
+            {
+                if (entity == otherEntity) continue;
+                if (!entityManager.HasComponent<AntComponent>(otherEntity)) continue;
+
+                var ant = SystemAPI.GetComponentRW<AntComponent>(entity);
+                var otherAnt = SystemAPI.GetComponentRW<AntComponent>(otherEntity);
+
+                if (ant.ValueRO.SearchingForFood)
                 {
-                    var ant = entityManager.GetComponentData<AntComponent>(entity);
-
-                    if (math.lengthsq(ant.Position - otherAnt.Position) < ant.TalkRange * ant.TalkRange)
+                    if (math.lengthsq(ant.ValueRO.Position - otherAnt.ValueRO.Position) < ant.ValueRO.TalkRange * ant.ValueRO.TalkRange)
                     {
-                        if (ant.SearchingForFood)
+                        if (otherAnt.ValueRO.DistanceToFood + ant.ValueRO.TalkRange < ant.ValueRO.DistanceToFood)
                         {
-                            if (otherAnt.DistanceToFood + ant.TalkRange < ant.DistanceToFood)
-                            {
-                                ant.DistanceToFood = (uint) (otherAnt.DistanceToFood + ant.TalkRange);
-                                ant.MoveDirection = math.normalize(otherAnt.Position - ant.Position);
-                                entityManager.SetComponentData(entity, ant);
-                            }
+                            ant.ValueRW.DistanceToFood = otherAnt.ValueRO.DistanceToFood + ant.ValueRO.TalkRange;
+
+                            ant.ValueRW.MoveDirection = math.normalizesafe(otherAnt.ValueRO.Position - ant.ValueRO.Position);
+                            return;
                         }
-                        else
+                    }
+                }
+
+                if (!ant.ValueRO.SearchingForFood)
+                {
+                    if (math.lengthsq(ant.ValueRO.Position - otherAnt.ValueRO.Position) < ant.ValueRO.TalkRange * ant.ValueRO.TalkRange)
+                    {
+                        if (otherAnt.ValueRO.DistanceToHome + ant.ValueRO.TalkRange < ant.ValueRO.DistanceToHome)
                         {
-                            if (otherAnt.DistanceToHome + ant.TalkRange < ant.DistanceToHome)
-                            {
-                                ant.DistanceToHome = (uint) (otherAnt.DistanceToHome + ant.TalkRange);
-                                ant.MoveDirection = math.normalize(otherAnt.Position - ant.Position);
-                                entityManager.SetComponentData(entity, ant);
-                            }
+                            ant.ValueRW.DistanceToHome = otherAnt.ValueRO.DistanceToHome + ant.ValueRO.TalkRange;
+
+                            ant.ValueRW.MoveDirection = math.normalizesafe(otherAnt.ValueRO.Position - ant.ValueRO.Position);
+                            return;
                         }
                     }
                 }
@@ -67,44 +78,42 @@ namespace _SwarmIntelligence.Systems
         }
 
         [BurstCompile]
-        private void ProcessFoodAndHome(EntityManager entityManager, Entity entity)
+        private void ProcessFoodAndHome(ref SystemState state, Entity entity)
         {
-            var ant = entityManager.GetComponentData<AntComponent>(entity);
-            if (math.lengthsq(ant.Position - float3.zero) > 25 * 25)
+            var ant = SystemAPI.GetComponentRW<AntComponent>(entity);
+            var color = SystemAPI.GetComponentRW<HDRPMaterialPropertyBaseColor>(entity);
+            if (math.lengthsq(ant.ValueRO.Position - float3.zero) > 25 * 25)
             {
-                ant.MoveDirection *= -1;
-                entityManager.SetComponentData(entity, ant);
+                ant.ValueRW.MoveDirection *= -1;
+                return;
             }
 
-            if (ant.SearchingForFood)
+            if (ant.ValueRO.SearchingForFood)
             {
                 foreach (var foodSupply in _foodSupplies)
                 {
-                    if (math.lengthsq(ant.Position - foodSupply.Position) < 1.5 * 1.5)
+                    if (math.lengthsq(ant.ValueRO.Position - foodSupply.Position) < 1)
                     {
-                        var color = entityManager.GetComponentData<HDRPMaterialPropertyBaseColor>(entity);
-                        ant.DistanceToFood = 0;
-                        ant.MoveDirection *= -1;
-                        color.Value = ant.BackHomeColor;
-                        ant.SearchingForFood = false;
-                        entityManager.SetComponentData(entity, color);
-                        entityManager.SetComponentData(entity, ant);
+                        ant.ValueRW.DistanceToFood = 0;
+                        ant.ValueRW.MoveDirection *= -1;
+                        color.ValueRW.Value = ant.ValueRO.BackHomeColor;
+                        ant.ValueRW.SearchingForFood = false;
+                        return;
                     }
                 }
             }
-            else
+
+            if (!ant.ValueRO.SearchingForFood)
             {
                 foreach (var homeComponent in _homeComponents)
                 {
-                    if (math.lengthsq(ant.Position - homeComponent.Position) < 1.5 * 1.5)
+                    if (math.lengthsq(ant.ValueRO.Position - homeComponent.Position) < 1)
                     {
-                        var color = entityManager.GetComponentData<HDRPMaterialPropertyBaseColor>(entity);
-                        ant.DistanceToHome = 0;
-                        ant.MoveDirection *= -1;
-                        color.Value = ant.FoodSearchColor;
-                        ant.SearchingForFood = true;
-                        entityManager.SetComponentData(entity, color);
-                        entityManager.SetComponentData(entity, ant);
+                        ant.ValueRW.DistanceToHome = 0;
+                        ant.ValueRW.MoveDirection *= -1;
+                        color.ValueRW.Value = ant.ValueRO.FoodSearchColor;
+                        ant.ValueRW.SearchingForFood = true;
+                        return;
                     }
                 }
             }

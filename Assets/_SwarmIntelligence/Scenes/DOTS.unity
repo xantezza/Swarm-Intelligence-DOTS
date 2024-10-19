@@ -172,9 +172,9 @@ MonoBehaviour:
   FoodColor: {r: 1, g: 0, b: 0, a: 1}
   foodSpawnRate: 15
   Ant: {fileID: 8736693846780517273, guid: a0d6567dc7def094d81446d1e0fec403, type: 3}
-  AntCount: 100
-  AntMoveSpeed: 10
-  AntTalkRange: 15
+  AntCount: 200
+  AntMoveSpeed: 5
+  AntTalkRange: 5
   AntSearchColor: {r: 0, g: 0, b: 1, a: 1}
   AntBackColor: {r: 0, g: 1, b: 0.04256463, a: 1}
 --- !u!1660057539 &9223372036854775807

@@ -1,5 +1,6 @@
 ﻿using _SwarmIntelligence.Components;
 using _SwarmIntelligence.Extensions;
+using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
@@ -20,8 +21,10 @@ namespace _SwarmIntelligence.Data
         public Color AntBackColor;
     }
     
+    [BurstCompile]
     public class MainSpawnerAuthoringBaker : Baker<MainSpawnerAuthoring>
     {
+        [BurstCompile]
         public override void Bake(MainSpawnerAuthoring authoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);

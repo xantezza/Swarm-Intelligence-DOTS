@@ -13,7 +13,7 @@ namespace _SwarmIntelligence.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var entityManager = state.EntityManager;    
+            var entityManager = state.EntityManager;
             var entities = entityManager.GetAllEntities();
 
             foreach (var entity in entities)
@@ -23,10 +23,9 @@ namespace _SwarmIntelligence.Systems
                     var ant = entityManager.GetComponentData<AntComponent>(entity);
                     var localTransform = entityManager.GetComponentData<LocalTransform>(entity);
                     
-                    ant.DistanceToFood++;
-                    ant.DistanceToHome++;
-                    ant.MoveDirection += RandomExtensions.RandomDirection(SystemAPI.Time.DeltaTime) * 0.1f;
                     float3 moveDirection = ant.MoveDirection * SystemAPI.Time.DeltaTime * ant.MoveSpeed;
+                    ant.DistanceToHome++; 
+                    ant.DistanceToFood++;
                     localTransform.Position += moveDirection;
                     var target = quaternion.LookRotationSafe(moveDirection, math.up());
                     localTransform.Rotation = target;
