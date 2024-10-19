@@ -1,10 +1,13 @@
 ﻿using _SwarmIntelligence.Components;
+using _SwarmIntelligence.Extensions;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace _SwarmIntelligence.Systems
 {
@@ -12,6 +15,17 @@ namespace _SwarmIntelligence.Systems
     public partial struct MainSpawnerSystem : ISystem
     {
         private bool _inited;
+
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
+        {
+            var entityManager = state.EntityManager;
+            var entities = entityManager.GetAllEntities();
+
+            foreach (var entity in entities)
+            {
+            }
+        }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -24,16 +38,15 @@ namespace _SwarmIntelligence.Systems
                 if (entityManager.HasComponent<MainSpawnerComponent>(entity))
                 {
                     var mainSpawner = entityManager.GetComponentData<MainSpawnerComponent>(entity);
-                    SpawnFood(ref state, ref mainSpawner);
 
                     if (!_inited)
                     {
                         _inited = true;
                         SpawnHome(ref state, mainSpawner);
                         SpawnAnts(ref state, mainSpawner);
+                        SpawnFood(ref state, ref mainSpawner);
+                        entityManager.SetComponentData(entity, mainSpawner);
                     }
-
-                    entityManager.SetComponentData(entity, mainSpawner);
                 }
             }
         }
@@ -44,20 +57,32 @@ namespace _SwarmIntelligence.Systems
             EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
             Entity newEntity = ecb.Instantiate(spawner.Home);
             ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.HomeColor});
-            ecb.AddComponent(newEntity, new HomeComponent());
+            ecb.AddComponent(newEntity, new HomeComponent() {Position = float3.zero});
             ecb.Playback(state.EntityManager);
         }
 
+        [BurstCompile]
         private void SpawnAnts(ref SystemState state, MainSpawnerComponent spawner)
         {
             EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+
             for (int i = 0; i < spawner.AntCount; i++)
             {
                 Entity newEntity = ecb.Instantiate(spawner.Ant);
                 ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.AntSearchColor});
-                var moveDirection = math.normalize(Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + i / SystemAPI.Time.DeltaTime)).NextFloat3()
-                                                   - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime - i/ SystemAPI.Time.DeltaTime)).NextFloat3());
-                ecb.AddComponent(newEntity, new AntComponent {TalkRange = spawner.AntTalkRange, MoveSpeed = spawner.AntMoveSpeed, MoveDirection = moveDirection});
+                var moveDirection = RandomExtensions.RandomDirection(SystemAPI.Time.ElapsedTime + i);
+                var position = RandomExtensions.RandomNormalizedDirection(SystemAPI.Time.ElapsedTime + i) * 4;
+                ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 0.2f});
+                ecb.AddComponent(newEntity, new AntComponent
+                {
+                    Position = position,
+                    TalkRange = spawner.AntTalkRange,
+                    MoveSpeed = spawner.AntMoveSpeed,
+                    MoveDirection = moveDirection,
+                    SearchingForFood = true,
+                    FoodSearchColor = spawner.AntSearchColor,
+                    BackHomeColor = spawner.AntBackColor
+                });
             }
 
             ecb.Playback(state.EntityManager);
@@ -70,13 +95,16 @@ namespace _SwarmIntelligence.Systems
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            Entity newEntity = ecb.Instantiate(spawner.Food);
+            for (int i = 0; i < 30; i++)
+            {
+                Entity newEntity = ecb.Instantiate(spawner.Food);
 
-            ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.FoodColor});
-            ecb.AddComponent(newEntity, new FoodSupplyComponent());
-            var position = math.normalize(Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime / SystemAPI.Time.DeltaTime)).NextFloat3()
-                                          - Random.CreateFromIndex((uint) (SystemAPI.Time.ElapsedTime + 1 / SystemAPI.Time.DeltaTime)).NextFloat3()) * 5;
-            ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 1});
+                ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.FoodColor});
+                var position = RandomExtensions.RandomNormalizedDirection(SystemAPI.Time.ElapsedTime + i) * 15;
+                ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 3});
+                ecb.AddComponent(newEntity, new FoodSupplyComponent() {Position = position});
+            }
+
             spawner.NextFoodSpawnTime = (float) SystemAPI.Time.ElapsedTime + spawner.FoodSpawnRate;
             ecb.Playback(state.EntityManager);
         }

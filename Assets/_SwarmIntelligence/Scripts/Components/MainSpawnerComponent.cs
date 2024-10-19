@@ -1,8 +1,10 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace _SwarmIntelligence.Components
 {
+    [BurstCompile]
     public struct MainSpawnerComponent : IComponentData
     {
         public Entity Home;
