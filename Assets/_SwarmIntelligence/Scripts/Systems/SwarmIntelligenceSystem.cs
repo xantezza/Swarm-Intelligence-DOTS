@@ -17,7 +17,7 @@ namespace _SwarmIntelligence.Systems
         public void OnUpdate(ref SystemState state)
         {
             var entityManager = state.EntityManager;
-            var entities = state.EntityManager.GetAllEntities();
+            NativeArray<Entity> entities = state.EntityManager.GetAllEntities();
 
             if (_foodSupplies.Length == 0)
             {
@@ -27,24 +27,24 @@ namespace _SwarmIntelligence.Systems
                     .ToComponentDataArray<HomeComponent>(Allocator.Persistent);
             }
 
-            foreach (var entity in entities)
+            for (var index = 0; index < entities.Length; index++)
             {
+                var entity = entities[index];
                 if (!entityManager.HasComponent<AntComponent>(entity)) continue;
 
                 ProcessFoodAndHome(ref state, entity);
-                ProcessTalk(ref state, entities, entity, entityManager);
+                ProcessTalk(ref state, entities, entity);
             }
         }
 
         [BurstCompile]
-        private void ProcessTalk(ref SystemState state, NativeArray<Entity> entities, Entity entity, EntityManager entityManager)
+        private void ProcessTalk(ref SystemState state, NativeArray<Entity> entities, Entity entity)
         {
+            var ant = SystemAPI.GetComponentRW<AntComponent>(entity);
             foreach (var otherEntity in entities)
             {
                 if (entity == otherEntity) continue;
-                if (!entityManager.HasComponent<AntComponent>(otherEntity)) continue;
-
-                var ant = SystemAPI.GetComponentRW<AntComponent>(entity);
+                if (!SystemAPI.HasComponent<AntComponent>(otherEntity)) continue;
                 var otherAnt = SystemAPI.GetComponentRW<AntComponent>(otherEntity);
 
                 if (ant.ValueRO.SearchingForFood)

@@ -63,7 +63,7 @@ namespace _SwarmIntelligence.Systems
                 ecb.AddComponent(newEntity, new AntComponent
                 {
                     TalkRange = spawner.AntTalkRange,
-                    MoveSpeed = spawner.AntMoveSpeed * math.abs(moveDirection.x),
+                    MoveSpeed = spawner.AntMoveSpeed,
                     MoveDirection = moveDirection,
                     SearchingForFood = true,
                     FoodSearchColor = spawner.AntSearchColor,
@@ -81,7 +81,7 @@ namespace _SwarmIntelligence.Systems
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Entity newEntity = ecb.Instantiate(spawner.Food);
 
