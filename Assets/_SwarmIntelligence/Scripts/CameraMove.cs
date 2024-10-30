@@ -13,7 +13,10 @@ public class CameraMove : MonoBehaviour
 
     private void Update()
     {
-        _underRoot.Rotate(Input.GetAxis("Mouse Y") * Time.deltaTime * 20,  0, 0);
-        transform.Rotate(0,  Input.GetAxis("Mouse X") * Time.deltaTime * 20, 0);
+        if (Input.GetMouseButton(0))
+        {
+            _underRoot.Rotate(Input.GetAxis("Mouse Y") * Time.deltaTime * 20, 0, 0);
+            transform.Rotate(0, Input.GetAxis("Mouse X") * Time.deltaTime * 20, 0);
+        }
     }
 }

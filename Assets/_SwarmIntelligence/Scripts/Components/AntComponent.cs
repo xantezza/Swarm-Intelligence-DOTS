@@ -16,8 +16,8 @@ namespace _SwarmIntelligence.Components
         
         public float DistanceToFood;
         public float DistanceToHome;
-        
-        
+        public uint Seed;
+
         public float4 FoodSearchColor;
         public float4 BackHomeColor;
     }

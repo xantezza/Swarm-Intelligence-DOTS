@@ -1,4 +1,5 @@
 ﻿using _SwarmIntelligence.Components;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,13 +8,16 @@ using Unity.Transforms;
 
 namespace _SwarmIntelligence.Jobs
 {
+    [BurstCompile]
     public partial struct SwarmEntityJob : IJobEntity
     {
         [ReadOnly] public NativeArray<AntComponent> AntComponents;
         [ReadOnly] public NativeArray<FoodSupplyComponent> FoodSupplyComponents;
         [ReadOnly] public NativeArray<HomeComponent> HomeComponents;
         [ReadOnly] public float DeltaTime;
+        [ReadOnly] public double ElapsedTime;
 
+        [BurstCompile]
         private void Execute(ref LocalTransform localTransform, ref AntComponent ant, ref HDRPMaterialPropertyBaseColor color)
         {
             Move(ref localTransform, ref ant, DeltaTime);
@@ -21,9 +25,11 @@ namespace _SwarmIntelligence.Jobs
             ProcessTalk(ref ant);
         }   
 
+        [BurstCompile]
         private void Move(ref LocalTransform localTransform, ref AntComponent ant, float deltaTime)
         {
-            float3 moveDirection = ant.MoveDirection * deltaTime * ant.MoveSpeed;
+            float3 random = Random.CreateFromIndex(ant.Seed + (uint)ElapsedTime).NextFloat3(-0.2f, 0.2f);
+            float3 moveDirection = math.normalizesafe(ant.MoveDirection + random) * deltaTime * ant.MoveSpeed;
             ant.DistanceToHome++;
             ant.DistanceToFood++;
             localTransform.Position += moveDirection;
@@ -32,6 +38,7 @@ namespace _SwarmIntelligence.Jobs
             ant.Position = localTransform.Position;
         }
 
+        [BurstCompile]
         private void ProcessTalk(ref AntComponent ant)
         {
             foreach (var otherAnt in AntComponents)
@@ -65,6 +72,7 @@ namespace _SwarmIntelligence.Jobs
             }
         }
 
+        [BurstCompile]
         private void ProcessFood(ref AntComponent ant, ref HDRPMaterialPropertyBaseColor color)
         {
             if (math.lengthsq(ant.Position - float3.zero) > 35 * 35)

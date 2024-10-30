@@ -1,16 +1,19 @@
 ﻿using _SwarmIntelligence.Components;
 using _SwarmIntelligence.Jobs;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
 namespace _SwarmIntelligence.Systems
 {
+    [BurstCompile]
     public partial class SwarmIntelligenceSystem : SystemBase
     {
         private NativeArray<AntComponent> _antComponents;
         private NativeArray<FoodSupplyComponent> _foodSupplyComponents;
         private NativeArray<HomeComponent> _homeComponents;
 
+        [BurstCompile]
         protected override void OnUpdate()
         {
             _antComponents = GetEntityQuery(typeof(AntComponent)).ToComponentDataArray<AntComponent>(Allocator.TempJob);
@@ -22,7 +25,8 @@ namespace _SwarmIntelligence.Systems
                 AntComponents = _antComponents,
                 FoodSupplyComponents = _foodSupplyComponents,
                 HomeComponents = _homeComponents,
-                DeltaTime = SystemAPI.Time.DeltaTime
+                DeltaTime = SystemAPI.Time.DeltaTime,
+                ElapsedTime = SystemAPI.Time.ElapsedTime
             }.ScheduleParallel();
         }
     }

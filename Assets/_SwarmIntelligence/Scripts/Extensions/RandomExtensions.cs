@@ -5,16 +5,17 @@ namespace _SwarmIntelligence.Extensions
 {
     public static class RandomExtensions
     {
-        public static float3 RandomNormalizedDirection(double seed)
+        public static float3 RandomNormalizedDirection(uint seed)
         {
-            return math.normalize(Random.CreateFromIndex((uint) (seed * 100f)).NextFloat3()
-                                  - Random.CreateFromIndex((uint) (seed + 1f )).NextFloat3());
+            return math.normalize(Random.CreateFromIndex(seed * 100).NextFloat3()
+                                  - Random.CreateFromIndex(seed + 1).NextFloat3());
         }
         
-        public static float3 RandomDirection(double seed)
+        public static float3 RandomDirection(uint seed)
         {
-            return Random.CreateFromIndex((uint) (seed * 100f)).NextFloat3()
-                                  - Random.CreateFromIndex((uint) (seed + 1f)).NextFloat3();
+            return Random.CreateFromIndex(seed * 100).NextFloat3()
+                                  - Random.CreateFromIndex(seed + 1).NextFloat3();
         }
+        
     }
 }
