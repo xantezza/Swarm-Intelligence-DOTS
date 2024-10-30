@@ -19,31 +19,8 @@ namespace _SwarmIntelligence.Data
         public float AntTalkRange;
         public Color AntSearchColor;
         public Color AntBackColor;
-
-        private void Start()
-        {
-            //Test();
-        }
-
-        private void Test()
-        {
-            
-            var count = 20000;
-            for (int i = 0; i < count; i++)
-            {
-                Execute(i);
-            }
-        }
-        
-        public void Execute(int index)
-        { 
-            for (int i = 0; i < index; i++)
-            {
-                var a = Mathf.Sqrt(i);
-            }
-        }
     }
-    
+
     [BurstCompile]
     public class MainSpawnerAuthoringBaker : Baker<MainSpawnerAuthoring>
     {

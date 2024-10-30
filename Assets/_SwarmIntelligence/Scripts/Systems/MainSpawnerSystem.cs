@@ -79,7 +79,7 @@ namespace _SwarmIntelligence.Systems
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 3; i++)
             {
                 Entity newEntity = ecb.Instantiate(spawner.Food);
 
