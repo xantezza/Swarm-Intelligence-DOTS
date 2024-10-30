@@ -6,39 +6,37 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 namespace _SwarmIntelligence.Systems
 {
     [BurstCompile]
     public partial struct MainSpawnerSystem : ISystem
     {
-        private bool _inited; 
+        private bool _inited;
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var entityManager = state.EntityManager;
-            var entities = entityManager.GetAllEntities();
-
-            foreach (var entity in entities)
+            if (!_inited)
             {
-                if (entityManager.HasComponent<MainSpawnerComponent>(entity))
-                {
-                    var mainSpawner = entityManager.GetComponentData<MainSpawnerComponent>(entity);
+                var entityManager = state.EntityManager;
+                var entities = entityManager.GetAllEntities();
 
-                    if (!_inited)
+                foreach (var entity in entities)
+                {
+                    if (entityManager.HasComponent<MainSpawnerComponent>(entity))
                     {
-                        _inited = true;
+                        var mainSpawner = entityManager.GetComponentData<MainSpawnerComponent>(entity);
+
                         SpawnHome(ref state, mainSpawner);
                         SpawnAnts(ref state, mainSpawner);
                         SpawnFood(ref state, ref mainSpawner);
-                        entityManager.SetComponentData(entity, mainSpawner);
+                        _inited = true;
                     }
                 }
             }
         }
+
 
         [BurstCompile]
         private void SpawnHome(ref SystemState state, MainSpawnerComponent spawner)
@@ -87,7 +85,7 @@ namespace _SwarmIntelligence.Systems
 
                 ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.FoodColor});
                 var position = RandomExtensions.RandomNormalizedDirection(SystemAPI.Time.ElapsedTime + i) * 15;
-                ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 3});
+                ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 2});
                 ecb.AddComponent(newEntity, new FoodSupplyComponent() {Position = position});
             }
 

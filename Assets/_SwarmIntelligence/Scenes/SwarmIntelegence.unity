@@ -271,6 +271,7 @@ GameObject:
   - component: {fileID: 1079272741}
   - component: {fileID: 1079272740}
   - component: {fileID: 1079272742}
+  - component: {fileID: 1079272743}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -500,6 +501,29 @@ MonoBehaviour:
   m_ObsoleteUseShadowQualitySettings: 0
   m_ObsoleteCustomShadowResolution: 512
   m_ObsoleteContactShadows: 0
+--- !u!114 &1079272743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079272739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c44e4f6b374e11855b79d8f154f47a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Home: {fileID: 0}
+  HomeColor: {r: 0, g: 0, b: 0, a: 0}
+  Food: {fileID: 0}
+  FoodColor: {r: 0, g: 0, b: 0, a: 0}
+  foodSpawnRate: 0
+  Ant: {fileID: 0}
+  AntCount: 0
+  AntMoveSpeed: 0
+  AntTalkRange: 0
+  AntSearchColor: {r: 0, g: 0, b: 0, a: 0}
+  AntBackColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1253691447
 GameObject:
   m_ObjectHideFlags: 0
