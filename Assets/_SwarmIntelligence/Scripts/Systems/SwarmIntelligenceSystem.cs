@@ -26,7 +26,18 @@ namespace _SwarmIntelligence.Systems
                 FoodSupplyComponents = _foodSupplyComponents,
                 HomeComponents = _homeComponents,
                 DeltaTime = SystemAPI.Time.DeltaTime,
-                ElapsedTime = SystemAPI.Time.ElapsedTime
+            }.ScheduleParallel();
+            
+            new MoveJob()
+            {
+                ElapsedTime = SystemAPI.Time.ElapsedTime,
+                DeltaTime = SystemAPI.Time.DeltaTime,
+            }.ScheduleParallel();
+            
+            new MoveAntJob()
+            {
+                ElapsedTime = SystemAPI.Time.ElapsedTime,
+                DeltaTime = SystemAPI.Time.DeltaTime,
             }.ScheduleParallel();
         }
     }

@@ -51,7 +51,7 @@ namespace _SwarmIntelligence.Systems
                 ecb.AddComponent(newEntity, new AntComponent
                 {
                     TalkRange = spawner.AntTalkRange,
-                    MoveSpeed = spawner.AntMoveSpeed * Random.CreateFromIndex((uint)i).NextFloat(0.8f, 1.2f),
+                    MoveSpeed = spawner.AntMoveSpeed * Random.CreateFromIndex((uint)i).NextFloat(0.5f, 1.5f),
                     MoveDirection = moveDirection,
                     SearchingForFood = true,
                     FoodSearchColor = spawner.AntSearchColor,
@@ -83,9 +83,9 @@ namespace _SwarmIntelligence.Systems
                 Entity newEntity = ecb.Instantiate(spawner.Food);
 
                 ecb.AddComponent(newEntity, new HDRPMaterialPropertyBaseColor {Value = spawner.FoodColor});
-                var position = RandomExtensions.RandomNormalizedDirection((uint)(SystemAPI.Time.ElapsedTime + i)) * 15;
+                var position = RandomExtensions.RandomNormalizedDirection((uint)(SystemAPI.Time.ElapsedTime + i)) * 20;
                 ecb.SetComponent(newEntity, new LocalTransform {Position = position, Rotation = quaternion.identity, Scale = 2});
-                ecb.AddComponent(newEntity, new FoodSupplyComponent() {Position = position});
+                ecb.AddComponent(newEntity, new FoodSupplyComponent() {Position = position, Seed = (uint)i});
             }
 
             spawner.NextFoodSpawnTime = (float) SystemAPI.Time.ElapsedTime + spawner.FoodSpawnRate;

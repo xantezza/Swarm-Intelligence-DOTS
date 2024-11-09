@@ -8,6 +8,7 @@ namespace _SwarmIntelligence.Components
     public struct FoodSupplyComponent : IComponentData
     {
         public float3 Position;
+        public uint Seed;
 
     }
 }

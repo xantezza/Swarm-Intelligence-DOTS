@@ -15,28 +15,13 @@ namespace _SwarmIntelligence.Jobs
         [ReadOnly] public NativeArray<FoodSupplyComponent> FoodSupplyComponents;
         [ReadOnly] public NativeArray<HomeComponent> HomeComponents;
         [ReadOnly] public float DeltaTime;
-        [ReadOnly] public double ElapsedTime;
 
         [BurstCompile]
-        private void Execute(ref LocalTransform localTransform, ref AntComponent ant, ref HDRPMaterialPropertyBaseColor color)
+        private void Execute(ref AntComponent ant, ref HDRPMaterialPropertyBaseColor color)
         {
-            Move(ref localTransform, ref ant, DeltaTime);
             ProcessFood(ref ant, ref color);
             ProcessTalk(ref ant);
-        }   
-
-        [BurstCompile]
-        private void Move(ref LocalTransform localTransform, ref AntComponent ant, float deltaTime)
-        {
-            float3 random = Random.CreateFromIndex(ant.Seed + (uint)ElapsedTime).NextFloat3(-0.2f, 0.2f);
-            float3 moveDirection = math.normalizesafe(ant.MoveDirection + random) * deltaTime * ant.MoveSpeed;
-            ant.DistanceToHome++;
-            ant.DistanceToFood++;
-            localTransform.Position += moveDirection;
-            var target = quaternion.LookRotationSafe(moveDirection, math.up());
-            localTransform.Rotation = target;
-            ant.Position = localTransform.Position;
-        }
+        }  
 
         [BurstCompile]
         private void ProcessTalk(ref AntComponent ant)
@@ -75,12 +60,6 @@ namespace _SwarmIntelligence.Jobs
         [BurstCompile]
         private void ProcessFood(ref AntComponent ant, ref HDRPMaterialPropertyBaseColor color)
         {
-            if (math.lengthsq(ant.Position - float3.zero) > 35 * 35)
-            {
-                ant.MoveDirection *= -1;
-                return;
-            }
-
             if (ant.SearchingForFood)
             {
                 foreach (var foodSupply in FoodSupplyComponents)
